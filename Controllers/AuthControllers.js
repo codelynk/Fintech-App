@@ -79,25 +79,16 @@ const handleLogin = async (request,response)=>{
     }
 }
 
-const handleForgotPassword = async(request,response,next) =>{
-        const {Email} = request.body
-        const user = usersModel.findOne({Email:Email})
-        if (!user) {
-            throw new Error("User not found");
-          }
-        user = request.user  
-        next()
-}
 
-
-const handleRequestPasswordReset = async (request, response) => {
+const handleForgotPassword = async (request, response) => {
     try {
-    const{Email} = request.body
-      const user = request.user
-  
-      
-  
-      // Generate secure token
+        const{Email} = request.body
+        const user = usersModel.findOne({Email:Email})
+        if(!user){
+            return response.json({Message:"please check your mailbox for a link to complete the reset"})
+            }
+        response.json({Message:"Please check your mailbox for a link to complete the reset"})
+       // Generate secure token
       const token = crypto.randomBytes(32).toString("hex");
   
       // Set token and expiry in your database(e.g., valid for 1 hour)
@@ -129,11 +120,29 @@ const handleRequestPasswordReset = async (request, response) => {
     }
   }
 
+  const handleResetPassword = async(request,response) => {
+    try {
+        const {token, newPassword} = request.body
+        const user = usersModel.findOne({resetToken:token, resetTokenExpires:{$gt:Date.now()}})
+        if(!user){
+            return response.status(400).json({Message:"Invalid or Expired Token!"})
+        }
+        hashedNewPassword = await bcrypt.hash(newPassword, 12)
+        user.Password = hashedNewPassword
+        await user.save()
+    }
+    catch (error){
+        response.status(500).json({Message: "Server error", error})
+    }
+
+  }
+
 
 
 module.exports = {
-    handleLogin,
     handleUserRegistration,
-    handleRequestPasswordReset,
+    handleLogin,
+    handleForgotPassword,
     handleVerifyResetToken,
+    handleResetPassword
 }

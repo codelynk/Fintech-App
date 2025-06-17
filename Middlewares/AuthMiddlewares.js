@@ -97,10 +97,49 @@ const missingInputs = (request, response, next) =>{
 
     }
 
+
+    const adminAuthorization = async (request, response, next)=>{
+
+        const token = request.header("Authorization")
+
+        if(!token){
+            return response.status(401).json({message: "Please login!"})
+        }
+
+        const splitToken = token.split(" ")
+
+         if (splitToken.length !== 2 || splitToken[0] !== "Bearer") {
+            return response.status(401).json({ message: "Invalid token format" });
+        }
+
+        const actualToken = splitToken[1]
+
+       let decodedAccessToken;
+        try {
+            decodedAccessToken = jwt.verify(actualToken, process.env.ACCESS_TOKEN);
+        } 
+        catch (error) {
+            return response.status(500).json({ message: "Token verification failed" });
+        }
+
+        const user = await usersModel.findById(decodedAccessToken.id)
+
+        if(!user){
+            return response.status(404).json({message: "User account does not exist"})
+        }
+
+        if(user?.Role !== "admin"){
+            return res.status(401).json({message: "Invalid AUTHORIZATION"})
+        }
+
+        next()
+
+    }
     
 module.exports = {
     missingInputs,
     emailValidator,
     improperInputs,
-    userAuthorization
+    userAuthorization,
+    adminAuthorization,
 }
