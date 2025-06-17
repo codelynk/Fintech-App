@@ -85,12 +85,6 @@ const missingInputs = (request, response, next) =>{
             return response.status(404).json({message: "User account does not exist"})
         }
 
-    
-
-        // if(user?.role !== "admin"){
-        //     return res.status(401).json({message: "Invalid AUTHORIZATION"})
-        // }
-
         request.user = user
 
         next()
@@ -119,7 +113,7 @@ const missingInputs = (request, response, next) =>{
             decodedAccessToken = jwt.verify(actualToken, process.env.ACCESS_TOKEN);
         } 
         catch (error) {
-            return response.status(500).json({ message: "Token verification failed" });
+            return response.status(500).json({ message: "Token verification failed" ,error: error.message});
         }
 
         const user = await usersModel.findById(decodedAccessToken.id)

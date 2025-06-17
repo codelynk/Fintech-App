@@ -38,7 +38,7 @@ const walletBalanceChecker =async (request, response) =>{
     }
     catch (error){
         console.error("Error")
-        return response.status(500).json({Message: "Internal Server Error"})
+        return response.status(500).json({message: "Internal Server Error"})
 
     }
 }
@@ -55,7 +55,7 @@ const transactionHistoryChecker = async (request, response)=>{
     }
     catch (error) {
         console.error("Error")
-        return response.status(500).json({Message: "Internal Server Error"})
+        return response.status(500).json({message: "Internal Server Error", error:error.message})
     }
 }
 

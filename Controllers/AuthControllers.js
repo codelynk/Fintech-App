@@ -9,10 +9,10 @@ const {v4:uuidv4} = require("uuid")
 
 const handleUserRegistration = async (request,response)=>{
     try{
-        const {Username,Password,Email,Transaction_pin} = request.body
+        const {Username,Password,Email,Transaction_pin,Role} = request.body
         const hashedPassword = await bcrypt.hash(Password, 12)
         const hashedTransactionPin = await bcrypt.hash(Transaction_pin,12)
-        const newUserDocument = await usersModel.create({Username,Email,Password:hashedPassword,Transaction_pin:hashedTransactionPin})
+        const newUserDocument = await usersModel.create({Username,Email,Password:hashedPassword,Transaction_pin:hashedTransactionPin,Role})
         const newWalletDocument = await walletModel.create({
             Username:newUserDocument.Username,
             Wallet_id: uuidv4()
